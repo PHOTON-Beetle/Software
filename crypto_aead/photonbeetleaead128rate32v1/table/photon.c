@@ -1,10 +1,3 @@
-/**********************************************
- * PHOTON-Beetle                              *
- * Authenticated Encryption and Hash Family   *
- *                                            *
- * Table-based Implementation for PC          *
- * Version 1.0 2020 by PHOTON-Beetle Team     *
- **********************************************/
 #include "photon.h"
 
 
@@ -23,57 +16,71 @@ const uint8_t RC[12][D] = {
 {0xa, 0xb, 0x9, 0xd, 0x5, 0x4, 0x6, 0x2}
 };
 
-const uint32_t SCShRMCS_Table[D][1<<S] = {
-{0xbf5c86f8, 0xa9756b96, 0xceb643e4, 0x5dab3cd3, 0x1629ed6e, 0x00000000, 0x71eac51c, 0x931d7f37, 0x67c32872, 0xf4de5745, 0xd89fae8a, 0x3a6814a1, 0x85349259, 0xe2f7ba2b, 0x2c41f9cf, 0x4b82d1bd}, 
-{0x565ef4bc, 0x7b7d93a5, 0xb3b7e2c6, 0xacafd85b, 0x2d236719, 0x00000000, 0xe5e9167a, 0x1f183a9d, 0xc8ca7163, 0xd7d24bfe, 0x9e9485df, 0x6465a938, 0x323b5d84, 0xfaf12ce7, 0x4946ce21, 0x818cbf42}, 
-{0xba3969b3, 0xaec2b2ac, 0xc58d3dc8, 0x5761c156, 0x14fbdb1f, 0x00000000, 0x7fb4547b, 0x92ecfc9e, 0x6b4f8f64, 0xf9a373fa, 0xd176e6d7, 0x3c2e4e32, 0x86172781, 0xed58a8e5, 0x28d5952d, 0x439a1a49}, 
-{0xd33c3811, 0x1cc5c644, 0xf8868499, 0x966b6322, 0xcff9fe55, 0x00000000, 0x2bbabc88, 0x6eede7bb, 0xe44342dd, 0x8aaea566, 0x377f7acc, 0x722821ff, 0xa11419ee, 0x45575b33, 0xbdd1dfaa, 0x59929d77}, 
-{0xb26f4579, 0xa8b937f2, 0xc13e2bad, 0x54cd8ae1, 0x1ad6728b, 0x00000000, 0x73516ed4, 0x95f3a14c, 0x69871c5f, 0xfc74bd13, 0xdbe85926, 0x3d4a96be, 0x8f25d3c7, 0xe6a2cf98, 0x279ce435, 0x4e1bf86a}, 
-{0xa2539fc1, 0xe87c2954, 0x51b8de69, 0x74a61db2, 0x4a2fb695, 0x00000000, 0xf3eb41a8, 0x251ec3db, 0xb9c4f73d, 0x9cda34e6, 0x1b9768fc, 0xcd62ea8f, 0x6f31754e, 0xd6f58273, 0x874d5c1a, 0x3e89ab27}, 
-{0x993846cb, 0x22c63b5a, 0xdd84236c, 0x11638cb5, 0xbbfe7d91, 0x00000000, 0x44bc65a7, 0xcce7afd9, 0xff421836, 0x33a5b7ef, 0x667a5efd, 0xee219483, 0x7719d248, 0x885bca7e, 0x55dfe912, 0xaa9df124}, 
-{0xeb643e47, 0xdab3cd3f, 0x7c32872a, 0xf5c86f8e, 0x31d7f378, 0x00000000, 0x9756b96d, 0x89fae8a4, 0xa6814a15, 0x2f7ba2b1, 0x4de57452, 0x5349259b, 0xb82d1bdc, 0x1eac51c9, 0x629ed6e3, 0xc41f9cf6}
+const uint64_t SCShRMCS_Table[D][1<<S] = {
+{
+0x080f06080c050f0bULL, 0x06090b060507090aULL, 0x040e0304060b0e0cULL, 0x030d0c030b0a0d05ULL, 0x0e060d0e09020601ULL, 0x0000000000000000ULL, 0x0c01050c0a0e0107ULL, 0x07030f070d010309ULL, 0x02070802030c0706ULL, 0x050407050e0d040fULL, 0x0a080e0a0f09080dULL, 0x010a040108060a03ULL, 0x0905020904030508ULL, 0x0b020a0b070f020eULL, 0x0f0c090f01040c02ULL, 0x0d0b010d02080b04ULL, 
+},
+{
+0x0c0b040f0e050605ULL, 0x050a03090d070b07ULL, 0x060c020e070b030bULL, 0x0b05080d0f0a0c0aULL, 0x0901070603020d02ULL, 0x0000000000000000ULL, 0x0a070601090e050eULL, 0x0d090a0308010f01ULL, 0x030601070a0c080cULL, 0x0e0f0b04020d070dULL, 0x0f0d050804090e09ULL, 0x0803090a05060406ULL, 0x04080d050b030203ULL, 0x070e0c02010f0a0fULL, 0x01020e0c06040904ULL, 0x02040f0b0c080108ULL, 
+},
+{
+0x030b090609030a0bULL, 0x0c0a020b020c0e0aULL, 0x080c0d030d08050cULL, 0x0605010c01060705ULL, 0x0f010b0d0b0f0401ULL, 0x0000000000000000ULL, 0x0b070405040b0f07ULL, 0x0e090c0f0c0e0209ULL, 0x04060f080f040b06ULL, 0x0a0f0307030a090fULL, 0x070d060e0607010dULL, 0x02030e040e020c03ULL, 0x0108070207010608ULL, 0x050e080a08050d0eULL, 0x0d020509050d0802ULL, 0x09040a010a090304ULL, 
+},
+{
+0x010108030c03030dULL, 0x0404060c050c0c01ULL, 0x090904080608080fULL, 0x020203060b060609ULL, 0x05050e0f090f0f0cULL, 0x0000000000000000ULL, 0x08080c0b0a0b0b02ULL, 0x0b0b070e0d0e0e06ULL, 0x0d0d02040304040eULL, 0x0606050a0e0a0a08ULL, 0x0c0c0a070f070703ULL, 0x0f0f010208020207ULL, 0x0e0e09010401010aULL, 0x03030b0507050504ULL, 0x0a0a0f0d010d0d0bULL, 0x07070d0902090905ULL, 
+},
+{
+0x090705040f06020bULL, 0x020f0703090b080aULL, 0x0d0a0b020e03010cULL, 0x010e0a080d0c0405ULL, 0x0b080207060d0a01ULL, 0x0000000000000000ULL, 0x040d0e0601050307ULL, 0x0c04010a030f0509ULL, 0x0f050c0107080906ULL, 0x03010d0b04070c0fULL, 0x06020905080e0b0dULL, 0x0e0b06090a040d03ULL, 0x070c030d05020f08ULL, 0x08090f0c020a060eULL, 0x0503040e0c090702ULL, 0x0a06080f0b010e04ULL, 
+},
+{
+0x010c0f090305020aULL, 0x040509020c07080eULL, 0x09060e0d080b0105ULL, 0x020b0d01060a0407ULL, 0x0509060b0f020a04ULL, 0x0000000000000000ULL, 0x080a01040b0e030fULL, 0x0b0d030c0e010502ULL, 0x0d03070f040c090bULL, 0x060e04030a0d0c09ULL, 0x0c0f080607090b01ULL, 0x0f080a0e02060d0cULL, 0x0e04050701030f06ULL, 0x03070208050f060dULL, 0x0a010c050d040708ULL, 0x07020b0a09080e03ULL, 
+},
+{
+0x0b0c060408030909ULL, 0x0a050b03060c0202ULL, 0x0c06030204080d0dULL, 0x050b0c0803060101ULL, 0x01090d070e0f0b0bULL, 0x0000000000000000ULL, 0x070a05060c0b0404ULL, 0x090d0f0a070e0c0cULL, 0x0603080102040f0fULL, 0x0f0e070b050a0303ULL, 0x0d0f0e050a070606ULL, 0x0308040901020e0eULL, 0x0804020d09010707ULL, 0x0e070a0c0b050808ULL, 0x0201090e0f0d0505ULL, 0x0402010f0d090a0aULL, 
+},
+{
+0x07040e0304060b0eULL, 0x0f030d0c030b0a0dULL, 0x0a02070802030c07ULL, 0x0e080f06080c050fULL, 0x0807030f070d0103ULL, 0x0000000000000000ULL, 0x0d06090b06050709ULL, 0x040a080e0a0f0908ULL, 0x05010a040108060aULL, 0x010b020a0b070f02ULL, 0x02050407050e0d04ULL, 0x0b09050209040305ULL, 0x0c0d0b010d02080bULL, 0x090c01050c0a0e01ULL, 0x030e060d0e090206ULL, 0x060f0c090f01040cULL, 
+},
 };
 
 
 inline static void AddKey(uint8_t state[D][D], int round)
 {
-	state[0][0] ^= RC[round][0];
-	state[1][0] ^= RC[round][1];
-	state[2][0] ^= RC[round][2];
-	state[3][0] ^= RC[round][3];
-	state[4][0] ^= RC[round][4];
-	state[5][0] ^= RC[round][5];
-	state[6][0] ^= RC[round][6];
-	state[7][0] ^= RC[round][7];
+	*((uint64_t *)state[0]) ^= *((uint64_t *)RC[round]);
 }
 
 inline static void SCShRMCS(uint8_t state[D][D])
 {
 	int c;
-	uint32_t v;
+	uint64_t s2o0;
+	uint64_t s2o1;
+	uint64_t s2o2;
+	uint64_t s2o3;
+	uint64_t s2o4;
+	uint64_t s2o5;
+	uint64_t s2o6;
+	uint64_t s2o7;
 	uint8_t os[D][D];
 	memcpy(os, state, D*D);
 
 	for(c = 0; c < D; c++) // for all columns
 	{
-		v = 0;
-		v ^= SCShRMCS_Table[0][os[0][(0+c)&0x7]];
-		v ^= SCShRMCS_Table[1][os[1][(1+c)&0x7]];
-		v ^= SCShRMCS_Table[2][os[2][(2+c)&0x7]];
-		v ^= SCShRMCS_Table[3][os[3][(3+c)&0x7]];
-		v ^= SCShRMCS_Table[4][os[4][(4+c)&0x7]];
-		v ^= SCShRMCS_Table[5][os[5][(5+c)&0x7]];
-		v ^= SCShRMCS_Table[6][os[6][(6+c)&0x7]];
-		v ^= SCShRMCS_Table[7][os[7][(7+c)&0x7]];
-
-		state[7][c] = (v >> (0*8)) & 0xF;
-		state[6][c] = (v >> (0*8 + 4)) & 0xF;
-		state[5][c] = (v >> (1*8)) & 0xF;
-		state[4][c] = (v >> (1*8 + 4)) & 0xF;
-		state[3][c] = (v >> (2*8)) & 0xF;
-		state[2][c] = (v >> (2*8 + 4)) & 0xF;
-		state[1][c] = (v >> (3*8)) & 0xF;
-		state[0][c] = (v >> (3*8 + 4)) & 0xF;
+		s2o0 = SCShRMCS_Table[0][os[(0+c)&0x7][0]];
+		s2o1 = SCShRMCS_Table[1][os[(1+c)&0x7][1]];
+		s2o2 = SCShRMCS_Table[2][os[(2+c)&0x7][2]];
+		s2o3 = SCShRMCS_Table[3][os[(3+c)&0x7][3]];
+		s2o4 = SCShRMCS_Table[4][os[(4+c)&0x7][4]];
+		s2o5 = SCShRMCS_Table[5][os[(5+c)&0x7][5]];
+		s2o6 = SCShRMCS_Table[6][os[(6+c)&0x7][6]];
+		s2o7 = SCShRMCS_Table[7][os[(7+c)&0x7][7]];
+		s2o0 ^= s2o1;
+		s2o2 ^= s2o3;
+		s2o4 ^= s2o5;
+		s2o6 ^= s2o7;
+		s2o0 ^= s2o2;
+		s2o4 ^= s2o6;
+		s2o0 ^= s2o4;
+		*((uint64_t *)state[c]) = s2o0;;
 	}
 }
 
@@ -92,7 +99,6 @@ void PHOTON_Permutation(unsigned char *State_inout)
     int i;
 
 	uint32_t *State_inout_pt;
-	uint64_t *state_pt;
 	uint32_t a_dword;
 	uint64_t x;
 	uint64_t xl;
@@ -102,7 +108,6 @@ void PHOTON_Permutation(unsigned char *State_inout)
 #define STATESIZE_INuint8_tS          ((D * D * S + 7) / 8) // (8 * 8 * 4 + 7) / 8 = 32 uint8_ts
 #define STATESIZE_INDWORDS ((STATESIZE_INuint8_tS + 3) / 4) // (32 + 3) / 4 = 8 dwords
 	State_inout_pt = (uint32_t *)State_inout;
-	state_pt = (uint64_t *)&(state[0][0]);
 	for (i = 0; i < STATESIZE_INDWORDS; i++)
 	{
 		a_dword = State_inout_pt[i];
@@ -111,16 +116,29 @@ void PHOTON_Permutation(unsigned char *State_inout)
 		x = (xh << 28ULL) | xl;
 		t = (x ^ (x >> 16ULL)) & 0x00000000FFFF0000ULL; x = x ^ t ^ (t << 16ULL);
 		t = (x ^ (x >>  8ULL)) & 0x0000FF000000FF00ULL; x = x ^ t ^ (t <<  8ULL);
-		state_pt[i] = x;
+		state[0][i] = (uint8_t)(x) & 0x0F;
+		state[1][i] = (uint8_t)(x >> (1 * 8ULL)) & 0x0F;
+		state[2][i] = (uint8_t)(x >> (2 * 8ULL)) & 0x0F;
+		state[3][i] = (uint8_t)(x >> (3 * 8ULL)) & 0x0F;
+		state[4][i] = (uint8_t)(x >> (4 * 8ULL)) & 0x0F;
+		state[5][i] = (uint8_t)(x >> (5 * 8ULL)) & 0x0F;
+		state[6][i] = (uint8_t)(x >> (6 * 8ULL)) & 0x0F;
+		state[7][i] = (uint8_t)(x >> (7 * 8ULL)) & 0x0F;
 	}
  
     Permutation(state, ROUND);
 
 	State_inout_pt = (uint32_t *)State_inout;
-	state_pt = (uint64_t *)&(state[0][0]);
 	for (i = 0; i < STATESIZE_INDWORDS; i++)
 	{
-		x = state_pt[i];
+		x = ((uint64_t)state[0][i]) |
+		    (((uint64_t)state[1][i]) << (1 * 8ULL)) |
+		    (((uint64_t)state[2][i]) << (2 * 8ULL)) |
+		    (((uint64_t)state[3][i]) << (3 * 8ULL)) |
+		    (((uint64_t)state[4][i]) << (4 * 8ULL)) |
+		    (((uint64_t)state[5][i]) << (5 * 8ULL)) |
+		    (((uint64_t)state[6][i]) << (6 * 8ULL)) |
+		    (((uint64_t)state[7][i]) << (7 * 8ULL));
 		t = (x ^ (x >>  8ULL)) & 0x0000FF000000FF00ULL; x = x ^ t ^ (t <<  8ULL);
 		t = (x ^ (x >> 16ULL)) & 0x00000000FFFF0000ULL; x = x ^ t ^ (t << 16ULL);
 		xl = x & 0x0F0F0F0FULL;

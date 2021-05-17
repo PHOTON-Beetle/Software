@@ -11,13 +11,13 @@ inline static uint8_t selectConst(
 	const uint8_t option2,
 	const uint8_t option3,
 	const uint8_t option4);
-
+	
 inline static void concatenate(
 	uint8_t *out,
 	const uint8_t *in_left, const size_t leftlen_inbytes,
 	const uint8_t *in_right, const size_t rightlen_inbytes);
 
-inline static void XOR(
+static void XOR(
 	uint8_t *out,
 	const uint8_t *in_left,
 	const uint8_t *in_right,
@@ -27,32 +27,31 @@ inline static void XOR_const(
 	uint8_t *State_inout,
 	const uint8_t  Constant);
 
-inline static void ROTR1_XOR_OuterStatePart1(
+static void ROTR1(
 	uint8_t *out,
-	const uint8_t *outerstate_half_in,
-	const uint8_t *data_half_in,
-	const size_t ilen_inbytes);
+	const uint8_t *in,
+	const size_t iolen_inbytes);
 
-inline static void ShuffleXOR(
+static void ShuffleXOR(
 	uint8_t *DataBlock_out,
 	const uint8_t *OuterState_in,
 	const uint8_t *DataBlock_in,
 	const size_t DBlen_inbytes);
-
-inline static void rhoohr(
+	
+static void rhoohr(
 	uint8_t *OuterState_inout,
 	uint8_t *DataBlock_out,
 	const uint8_t *DataBlock_in,
 	const size_t DBlen_inbytes,
 	const uint32_t EncDecInd);
 
-inline static void HASH(
+static void HASH(
 	uint8_t *State_inout,
 	const uint8_t *Data_in,
 	const uint64_t Dlen_inbytes,
 	const uint8_t  Constant);
 
-inline static void ENCorDEC(
+static void ENCorDEC(
 	uint8_t *State_inout,
 	uint8_t *Data_out,
 	const uint8_t *Data_in,
@@ -65,7 +64,7 @@ inline static void TAG(
 	uint8_t *State);
 
 /* Definition of basic internal functions */
-inline static uint8_t selectConst(
+static uint8_t selectConst(
 	const bool condition1,
 	const bool condition2,
 	const uint8_t option1,
@@ -88,7 +87,7 @@ inline static void concatenate(
 	memcpy(out + leftlen_inbytes, in_right, rightlen_inbytes);
 }
 
-inline static void XOR(
+static void XOR(
 	uint8_t *out,
 	const uint8_t *in_left,
 	const uint8_t *in_right,
@@ -105,22 +104,21 @@ inline static void XOR_const(
 	State_inout[STATE_INBYTES - 1] ^= (Constant << LAST_THREE_BITS_OFFSET);
 }
 
-inline static void ROTR1_XOR_OuterStatePart1(
+inline static void ROTR1(
 	uint8_t *out,
-	const uint8_t *outerstate_half_in,
-	const uint8_t *data_half_in,
-	const size_t ilen_inbytes)
+	const uint8_t *in,
+	const size_t iolen_inbytes)
 {
-	uint8_t tmp;
+	uint8_t tmp = in[0];
 	size_t i;
-	for (i = 0; i < ilen_inbytes; i++)
+	for (i = 0; i < iolen_inbytes - 1; i++)
 	{
-		tmp = (outerstate_half_in[i] >> 1) | ((outerstate_half_in[(i+1)%(RATE_INBYTES/2)] & 1) << 7);
-		out[i] = tmp ^ data_half_in[i];
+		out[i] = (in[i] >> 1) | ((in[(i+1)] & 1) << 7);
 	}
+	out[iolen_inbytes - 1] = (in[i] >> 1) | ((tmp & 1) << 7);
 }
 
-inline static void ShuffleXOR(
+static void ShuffleXOR(
 	uint8_t *DataBlock_out,
 	const uint8_t *OuterState_in,
 	const uint8_t *DataBlock_in,
@@ -129,7 +127,10 @@ inline static void ShuffleXOR(
 	const uint8_t *OuterState_part1 = OuterState_in;
 	const uint8_t *OuterState_part2 = OuterState_in + RATE_INBYTES / 2;
 
+	uint8_t OuterState_part1_ROTR1[RATE_INBYTES / 2] = { 0 };
 	size_t i;
+
+	ROTR1(OuterState_part1_ROTR1, OuterState_part1, RATE_INBYTES / 2);
 
 	i = 0;
 	while ((i < DBlen_inbytes) && (i < RATE_INBYTES / 2))
@@ -137,13 +138,14 @@ inline static void ShuffleXOR(
 		DataBlock_out[i] = OuterState_part2[i] ^ DataBlock_in[i];
 		i++;
 	}
-	if (i < DBlen_inbytes)
+	while (i < DBlen_inbytes)
 	{
-		ROTR1_XOR_OuterStatePart1(DataBlock_out + i, OuterState_part1, DataBlock_in + i, DBlen_inbytes - (RATE_INBYTES / 2));
+		DataBlock_out[i] = OuterState_part1_ROTR1[i - RATE_INBYTES / 2] ^ DataBlock_in[i];
+		i++;
 	}
 }
 
-inline static void rhoohr(
+static void rhoohr(
 	uint8_t *OuterState_inout,
 	uint8_t *DataBlock_out,
 	const uint8_t *DataBlock_in,
@@ -162,7 +164,7 @@ inline static void rhoohr(
 	}	
 }
 
-inline static void HASH(
+static void HASH(
 	uint8_t *State_inout,
 	const uint8_t *Data_in,
 	const uint64_t Dlen_inbytes,
@@ -186,7 +188,7 @@ inline static void HASH(
 	XOR_const(State, Constant);
 }
 
-inline static void ENCorDEC(
+static void ENCorDEC(
 	uint8_t *State_inout,
 	uint8_t *Data_out,
 	const uint8_t *Data_in,

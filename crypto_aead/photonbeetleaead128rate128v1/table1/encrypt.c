@@ -220,6 +220,7 @@ inline static void TAG(
 	memcpy(Tag_out, State, SQUEEZE_RATE_INBYTES);
 }
 
+
 int crypto_aead_encrypt(
 	unsigned char *c, unsigned long long *clen,
 	const unsigned char *m, unsigned long long mlen,

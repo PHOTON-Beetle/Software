@@ -423,7 +423,7 @@ void timing()
 	setCPUaffinity();
 	sprintf(fileName, "AEAD_Timing_Min_%d_%d.csv", (CRYPTO_KEYBYTES * 8), (CRYPTO_NPUBBYTES * 8));
 
-	if ((fp = fopen(fileName, "w")) == NULL) {
+	if ((fp = fopen(fileName, "a")) == NULL) {
 		fprintf(stderr, "Couldn't open <%s> for write\n", fileName);
 		return -1;
 	}
@@ -459,7 +459,7 @@ void timing()
 	fclose(fp);
 
 	sprintf(fileName, "AEAD_Timing_Avg_%d_%d.csv", (CRYPTO_KEYBYTES * 8), (CRYPTO_NPUBBYTES * 8));
-	if ((fp = fopen(fileName, "w")) == NULL) {
+	if ((fp = fopen(fileName, "a")) == NULL) {
 		fprintf(stderr, "Couldn't open <%s> for write\n", fileName);
 		return -1;
 	}

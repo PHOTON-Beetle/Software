@@ -389,7 +389,7 @@ void timing()
 	setCPUaffinity();
 	sprintf(fileName, "Hash_Timing_Min_%d.csv", (CRYPTO_BYTES * 8));
 
-	if ((fp = fopen(fileName, "w")) == NULL) {
+	if ((fp = fopen(fileName, "a")) == NULL) {
 		fprintf(stderr, "Couldn't open <%s> for write\n", fileName);
 		return -1;
 	}
@@ -421,7 +421,7 @@ void timing()
 	fclose(fp);
 
 	sprintf(fileName, "Hash_Timing_Avg_%d.csv", (CRYPTO_BYTES * 8));
-	if ((fp = fopen(fileName, "w")) == NULL) {
+	if ((fp = fopen(fileName, "a")) == NULL) {
 		fprintf(stderr, "Couldn't open <%s> for write\n", fileName);
 		return -1;
 	}

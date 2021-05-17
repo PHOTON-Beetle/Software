@@ -11,7 +11,7 @@ inline static uint8_t selectConst(
 	const uint8_t option2,
 	const uint8_t option3,
 	const uint8_t option4);
-
+	
 inline static void concatenate(
 	uint8_t *out,
 	const uint8_t *in_left, const size_t leftlen_inbytes,
@@ -27,18 +27,16 @@ inline static void XOR_const(
 	uint8_t *State_inout,
 	const uint8_t  Constant);
 
-inline static void ROTR1_XOR_OuterStatePart1(
+static void ROTR1(
 	uint8_t *out,
-	const uint8_t *outerstate_half_in,
-	const uint8_t *data_half_in,
-	const size_t ilen_inbytes);
+	const uint8_t *in);
 
 inline static void ShuffleXOR(
 	uint8_t *DataBlock_out,
 	const uint8_t *OuterState_in,
 	const uint8_t *DataBlock_in,
 	const size_t DBlen_inbytes);
-
+	
 inline static void rhoohr(
 	uint8_t *OuterState_inout,
 	uint8_t *DataBlock_out,
@@ -65,7 +63,7 @@ inline static void TAG(
 	uint8_t *State);
 
 /* Definition of basic internal functions */
-inline static uint8_t selectConst(
+static uint8_t selectConst(
 	const bool condition1,
 	const bool condition2,
 	const uint8_t option1,
@@ -94,8 +92,23 @@ inline static void XOR(
 	const uint8_t *in_right,
 	const size_t iolen_inbytes)
 {
-	size_t i;
-	for (i = 0; i < iolen_inbytes; i++) out[i] = in_left[i] ^ in_right[i];
+	uint32_t *out_32 = (uint32_t *)out;
+	const uint32_t *in_left_32 = (uint32_t *)in_left;
+	const uint32_t *in_right_32 = (uint32_t *)in_right;
+
+	size_t i = 0;
+	size_t iolen_inu32 = iolen_inbytes >> 2;
+	while (i < iolen_inu32)
+	{
+		out_32[i] = in_left_32[i] ^ in_right_32[i];
+		i++;
+	}
+	i = i << 2;
+	while (i < iolen_inbytes)
+	{
+		out[i] = in_left[i] ^ in_right[i];
+		i++;
+	}
 }
 
 inline static void XOR_const(
@@ -105,19 +118,24 @@ inline static void XOR_const(
 	State_inout[STATE_INBYTES - 1] ^= (Constant << LAST_THREE_BITS_OFFSET);
 }
 
-inline static void ROTR1_XOR_OuterStatePart1(
+inline static void ROTR1(
 	uint8_t *out,
-	const uint8_t *outerstate_half_in,
-	const uint8_t *data_half_in,
-	const size_t ilen_inbytes)
+	const uint8_t *in)
 {
-	uint8_t tmp;
-	size_t i;
-	for (i = 0; i < ilen_inbytes; i++)
-	{
-		tmp = (outerstate_half_in[i] >> 1) | ((outerstate_half_in[(i+1)%(RATE_INBYTES/2)] & 1) << 7);
-		out[i] = tmp ^ data_half_in[i];
-	}
+#if (RATE_INBYTES == 16)
+	uint32_t in0_32 = ((uint32_t *)in)[0];
+	uint32_t in1_32 = ((uint32_t *)in)[1];
+	uint32_t out0_32 = (in0_32 >> 1) | (in1_32 << 31);
+	uint32_t out1_32 = (in1_32 >> 1) | (in0_32 << 31);
+	((uint32_t *)out)[0] = out0_32;
+	((uint32_t *)out)[1] = out1_32;
+#elif (RATE_INBYTES == 4)
+	uint16_t in_16 = ((uint16_t *)in)[0];
+	uint16_t out_16 = (in_16 >> 1) | (in_16 << 15);
+	((uint16_t *)out)[0] = out_16;
+#else
+	#error "Not valid RATE"
+#endif
 }
 
 inline static void ShuffleXOR(
@@ -129,7 +147,10 @@ inline static void ShuffleXOR(
 	const uint8_t *OuterState_part1 = OuterState_in;
 	const uint8_t *OuterState_part2 = OuterState_in + RATE_INBYTES / 2;
 
+	uint8_t OuterState_part1_ROTR1[RATE_INBYTES / 2] = { 0 };
 	size_t i;
+
+	ROTR1(OuterState_part1_ROTR1, OuterState_part1);
 
 	i = 0;
 	while ((i < DBlen_inbytes) && (i < RATE_INBYTES / 2))
@@ -137,9 +158,10 @@ inline static void ShuffleXOR(
 		DataBlock_out[i] = OuterState_part2[i] ^ DataBlock_in[i];
 		i++;
 	}
-	if (i < DBlen_inbytes)
+	while (i < DBlen_inbytes)
 	{
-		ROTR1_XOR_OuterStatePart1(DataBlock_out + i, OuterState_part1, DataBlock_in + i, DBlen_inbytes - (RATE_INBYTES / 2));
+		DataBlock_out[i] = OuterState_part1_ROTR1[i - RATE_INBYTES / 2] ^ DataBlock_in[i];
+		i++;
 	}
 }
 
@@ -219,7 +241,6 @@ inline static void TAG(
 	PHOTON_Permutation(State);
 	memcpy(Tag_out, State, SQUEEZE_RATE_INBYTES);
 }
-
 
 int crypto_aead_encrypt(
 	unsigned char *c, unsigned long long *clen,

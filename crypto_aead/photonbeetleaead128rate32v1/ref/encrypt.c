@@ -1,10 +1,3 @@
-/**********************************************
- * PHOTON-Beetle                              *
- * Authenticated Encryption and Hash Family   *
- *                                            *
- * Reference Implementation                   *
- * Version 1.0 2020 by PHOTON-Beetle Team     *
- **********************************************/
 #include "crypto_aead.h"
 
 #include "beetle.h"
@@ -270,6 +263,8 @@ int crypto_aead_encrypt(
 	uint8_t State[STATE_INBYTES] = { 0 };
 	uint8_t c0;
 	uint8_t c1;
+
+	(void)nsec;
 	
 	concatenate(State, N, NOUNCE_INBYTES, K, KEY_INBYTES);
 
@@ -325,6 +320,8 @@ int crypto_aead_decrypt(
 	uint8_t c0;
 	uint8_t c1;
 	uint64_t cmtlen;
+
+	(void)nsec;
 
 	if (clen < TAG_INBYTES) return TAG_UNMATCH;
 	cmtlen = clen - TAG_INBYTES;

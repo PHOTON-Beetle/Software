@@ -1,10 +1,3 @@
-/**********************************************
- * PHOTON-Beetle                              *
- * Authenticated Encryption and Hash Family   *
- *                                            *
- * Reference Implementation                   *
- * Version 1.0 2020 by PHOTON-Beetle Team     *
- **********************************************/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

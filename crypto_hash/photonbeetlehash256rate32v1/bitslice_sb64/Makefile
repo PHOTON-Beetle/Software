@@ -1,16 +1,16 @@
 CC=gcc
-CFLAGES=-std=c99 -Wall -Wextra -Wshadow -fsanitize=address,undefined -static-libasan -fuse-ld=gold -O3
+CFLAGES=-std=c99 -Wall -Wextra -Wshadow -fsanitize=address,undefined -static-libasan -fuse-ld=gold -O3 -DPC
 OBJS=genkat_hash.o hash.o photon.o timing_hash.o
 REFOBJS=genkat_hash.o photon.o hash.o
 TIMEOBJS=timing_hash.o photon.o hash.o
 
-all: table timingtable
+all: bitslice timingbitslice
 
-table: $(REFOBJS)
-	$(CC) -o table $(REFOBJS) $(CFLAGES)
+bitslice: $(REFOBJS)
+	$(CC) -o bitslice $(REFOBJS) $(CFLAGES)
 
-timingtable: $(TIMEOBJS)
-	$(CC) -o timingtable $(TIMEOBJS) $(CFLAGES) -lm
+timingbitslice: $(TIMEOBJS)
+	$(CC) -o timingbitslice $(TIMEOBJS) $(CFLAGES) -lm
 
 genkat_hash.o: ../../../genkat_hash.c
 	$(CC) -c ../../../genkat_hash.c $(CFLAGES) -I./

@@ -84,18 +84,11 @@ inline static void TAG(
 	uint8_t *Tag_out,
 	uint8_t *State)
 {
-	size_t i;
-
-	i = TAG_INBYTES;
-	while (i > SQUEEZE_RATE_INBYTES)
-	{
-		PHOTON_Permutation(State);
-		memcpy(Tag_out, State, SQUEEZE_RATE_INBYTES);
-		Tag_out += SQUEEZE_RATE_INBYTES;
-		i -= SQUEEZE_RATE_INBYTES;
-	}
 	PHOTON_Permutation(State);
-	memcpy(Tag_out, State, i);
+	memcpy(Tag_out, State, SQUEEZE_RATE_INBYTES);
+	Tag_out += SQUEEZE_RATE_INBYTES;
+	PHOTON_Permutation(State);
+	memcpy(Tag_out, State, SQUEEZE_RATE_INBYTES);
 }
 
 int crypto_hash(
